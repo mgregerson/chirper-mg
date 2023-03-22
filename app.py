@@ -6,7 +6,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import Unauthorized
 
-from forms import UserAddForm, LoginForm, MessageForm, CsrfForm
+from forms import UserAddForm, LoginForm, MessageForm, CsrfForm, EditUserProfile
 from models import db, connect_db, User, Message
 
 load_dotenv()
@@ -39,7 +39,7 @@ def add_user_and_form_to_g():
     else:
         g.form = CsrfForm()
         g.user = None
-        
+
 
 def do_login(user):
     """Log in user."""
@@ -116,12 +116,12 @@ def login():
 @app.post('/logout')
 def logout():
     """Handle logout of user and redirect to homepage."""
-    
+
     if g.form.validate_on_submit():
         flash('We are sorry to see you go!')
         do_logout()
         return redirect("/login")
-    
+
     else:
         raise Unauthorized()
 
@@ -225,8 +225,30 @@ def stop_following(follow_id):
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
     """Update profile for current user."""
+    if CURR_USER_KEY not in session:
+        raise Unauthorized()
 
-    # IMPLEMENT THIS
+    form = EditUserProfile(obj=g.user)
+
+    if form.validate_on_submit():
+        g.user.username = form.username.data
+        g.user.email = form.email.data
+        g.user.image_url = form.image_url.data
+        g.user.header_image_url = form.header_image_url.data
+        g.user.bio = form.bio.data
+        password = form.password.data
+
+        user = g.user.authenticate(g.user.username, password)
+
+        if user:
+            db.session.commit()
+            return redirect(f"/users/{g.user.id}")
+        else:
+            form.password.errors = ["Invalid password."]
+            return render_template("/users/edit.html", form=form)
+
+    else:
+        return render_template("/users/edit.html", form=form)
 
 
 @app.post('/users/delete')
