@@ -55,12 +55,12 @@ def do_logout():
 
 
 @app.route('/signup', methods=["GET", "POST"])
-def signup():
+def handle_signup():
     """Handle user signup.
 
-    Create new user and add to DB. Redirect to home page.
+    POST: Create new user and add to DB. Redirect to home page.
 
-    If form not valid, present form.
+    GET: If form not valid, present form.
 
     If the there already is a user with that username: flash message
     and re-present form.
@@ -93,7 +93,7 @@ def signup():
 
 
 @app.route('/login', methods=["GET", "POST"])
-def login():
+def handle_login():
     """Handle user login and redirect to homepage on success."""
 
     form = LoginForm()
@@ -114,7 +114,7 @@ def login():
 
 
 @app.post('/logout')
-def logout():
+def handle_logout():
     """Handle logout of user and redirect to homepage."""
 
     if g.form.validate_on_submit():
@@ -144,7 +144,9 @@ def list_users():
     if not search:
         users = User.query.all()
     else:
-        users = User.query.filter(User.username.like(f"%{search}%")).all()
+        users = User.query.filter(User
+                                  .username
+                                  .like(f"%{search}%")).all()
 
     return render_template('users/index.html', users=users)
 
@@ -223,8 +225,10 @@ def stop_following(follow_id):
 
 
 @app.route('/users/profile', methods=["GET", "POST"])
-def profile():
-    """Update profile for current user."""
+def update_profile():
+    """GET: Render template for user to edit their profile.
+
+       POST: Handle form, check that password is correct, and commit changes to the database. """
     if CURR_USER_KEY not in session:
         raise Unauthorized()
 
@@ -332,7 +336,7 @@ def delete_message(message_id):
 
 
 @app.get('/')
-def homepage():
+def display_homepage():
     """Show homepage:
 
     - anon users: no messages
