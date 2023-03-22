@@ -80,8 +80,8 @@ class User(db.Model):
     followers = db.relationship(
         "User",
         secondary="follows",
-        primaryjoin=(Follows.user_being_followed_id == id),
-        secondaryjoin=(Follows.user_following_id == id),
+        primaryjoin=(Follows.user_being_followed_id == id), # Should be this instance's id.
+        secondaryjoin=(Follows.user_following_id == id), # Our id that users are following.
         backref="following",
     )
 
