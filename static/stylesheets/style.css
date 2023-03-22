@@ -165,6 +165,18 @@ nav + .container {
   margin-left: -15px;
 }
 
+#warbler-hero {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.header-img {
+  flex-shrink: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+
 #profile-image {
   margin: 0 auto 15px;
   width: 100%;

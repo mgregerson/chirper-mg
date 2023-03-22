@@ -29,15 +29,17 @@ connect_db(app)
 
 
 @app.before_request
-def add_user_to_g():
+def add_user_and_form_to_g():
     """If we're logged in, add curr user to Flask global."""
 
     if CURR_USER_KEY in session:
+        g.form = CsrfForm()
         g.user = User.query.get(session[CURR_USER_KEY])
 
     else:
+        g.form = CsrfForm()
         g.user = None
-
+        
 
 def do_login(user):
     """Log in user."""
@@ -114,13 +116,10 @@ def login():
 @app.post('/logout')
 def logout():
     """Handle logout of user and redirect to homepage."""
-
-    form = CsrfForm()
     
-    if form.validate_on_submit():
-        print('VALIDATED')
-        do_logout()
+    if g.form.validate_on_submit():
         flash('We are sorry to see you go!')
+        do_logout()
         return redirect("/login")
     
     else:
@@ -318,8 +317,6 @@ def homepage():
     - logged in: 100 most recent messages of followed_users
     """
 
-    form=CsrfForm()
-
     if g.user:
         messages = (Message
                     .query
@@ -327,7 +324,7 @@ def homepage():
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages, form=form)
+        return render_template('home.html', messages=messages)
 
     else:
         return render_template('home-anon.html')

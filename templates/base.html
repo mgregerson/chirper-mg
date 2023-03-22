@@ -47,7 +47,10 @@
           </li>
           {% endblock %} {% if not g.user %}
           <li><a href="/signup">Sign up</a></li>
-          <li><a href="/login">Log in</a></li>
+          <form action="/login" method="POST" id="logout">
+            {{ g.form.hidden_tag() }}
+            <button type="submit" class="btn btn-danger btn-sm">Login</button>
+          </form>
           {% else %}
           <li>
             <a href="/users/{{ g.user.id }}">
@@ -56,7 +59,7 @@
           </li>
           <li><a href="/messages/new">New Message</a></li>
           <form action="/logout" method="POST" id="logout">
-            {{ form.hidden_tag() }}
+            {{ g.form.hidden_tag() }}
             <button type="submit" class="btn btn-danger btn-sm">Logout</button>
           </form>
 
