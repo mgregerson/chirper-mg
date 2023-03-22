@@ -89,13 +89,3 @@ class EditUserProfile(FlaskForm):
         '(Optional) Bio'
     )
 
-    # def validate_password(self, password):
-    #     user = User.query.filter_by(username = self.username.data)
-
-    #     if not user.check_password(password):
-    #         return False
-
-
-
-
-

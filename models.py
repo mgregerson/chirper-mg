@@ -85,6 +85,8 @@ class User(db.Model):
         backref="following",
     )
 
+   
+
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
 
