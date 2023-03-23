@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import Unauthorized
 
 from forms import UserAddForm, LoginForm, MessageForm, CsrfForm, EditUserProfile
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, LikedWarble
 
 load_dotenv()
 
@@ -23,15 +23,13 @@ toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
-
 ##############################################################################
 # User signup/login/logout
 
-
 @app.before_request
 def add_user_and_form_to_g():
-    """If we're logged in, add curr user to Flask global.
-    # TODO: Edit docstring(we are now adding g.form)"""
+    """If we're logged in, add curr user to Flask global. 
+    Adds CsrfForm to g whether user is logged in or not."""
 
     if CURR_USER_KEY in session:
         # TODO: Change name of g.form to something more specific to what this is calling. Change positiong of g.form(being used in both if and else)
@@ -339,6 +337,45 @@ def delete_message(message_id):
 
 
 ##############################################################################
+# Liked Warbles Routes
+
+@app.get('/add_liked_warble/<int:message_id>')
+def add_liked_warble(message_id):
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    message = Message.query.get_or_404(message_id)
+
+    liked_warble = LikedWarble(user_id = g.user.id, message_id=message.id)
+
+    db.session.add(liked_warble)
+    db.session.commit()
+
+    return render_template('/users/liked_warbles.html')
+
+@app.get('/remove_liked_warble/<int:message_id>')
+def remove_liked_warble(message_id):
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    message = Message.query.get_or_404(message_id)
+
+    print(message.liked_messages,
+          'is this all of them?')
+
+    liked_warble = LikedWarble.query.filter(g.user.id).filter(message.id)
+
+    db.session.delete(liked_warble)
+
+    db.session.commit()
+
+    return render_template('home.html')
+
+##############################################################################
 # Homepage and error pages
 
 
@@ -350,17 +387,18 @@ def display_homepage():
     - logged in: 100 most recent messages of followed_users
     """
     # TODO: Edit docstring to what the function is now doing for us. 
-    # TODO: Swap order of order_by and filter
         # TODO: Research a way to only find the id's of each of the instances in g.user.following
 
-    users = g.user.following
-    users.append(g.user)
-    ids = [user.id for user in users]
     if g.user:
+
+        followed_users = g.user.following
+        followed_users.append(g.user)
+        ids = [user.id for user in followed_users]
+
         messages = (Message
                     .query
-                    .order_by(Message.timestamp.desc())
                     .filter(Message.user_id.in_(ids))
+                    .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
 
