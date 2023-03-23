@@ -348,6 +348,10 @@ def add_liked_warble(message_id):
 
     message = Message.query.get_or_404(message_id)
 
+    if message.user_id == g.user.id:
+        flash("You can't like your own warble, silly!")
+        return redirect('/')
+
     liked_warble = LikedWarble(user_id = g.user.id, message_id=message.id)
 
     db.session.add(liked_warble)

@@ -568,3 +568,11 @@ p.card-bio {
 .liked-form {
   display: inline-block;
 }
+
+.bi-star {
+  z-index: 1;
+}
+
+.bi-star-fill {
+  z-index: 1;
+}
