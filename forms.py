@@ -73,19 +73,17 @@ class EditUserProfile(FlaskForm):
         validators=[Length(min=6)],
     )
 
-    # password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
-    # confirm  = PasswordField('Repeat Password')
-
     image_url = StringField(
         '(Optional) Image URL',
         validators=[URL()]
     )
 
     header_image_url = StringField(
-        '(Optional) URL or JPEG',
+        '(Optional) URL or path to image',
     )
 
     bio = StringField(
         '(Optional) Bio'
     )
 
+# TODO: Organize the order of these forms. How should they realistically be arranged?

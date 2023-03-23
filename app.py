@@ -30,9 +30,11 @@ connect_db(app)
 
 @app.before_request
 def add_user_and_form_to_g():
-    """If we're logged in, add curr user to Flask global."""
+    """If we're logged in, add curr user to Flask global.
+    # TODO: Edit docstring(we are now adding g.form)"""
 
     if CURR_USER_KEY in session:
+        # TODO: Change name of g.form to something more specific to what this is calling. Change positiong of g.form(being used in both if and else)
         g.form = CsrfForm()
         g.user = User.query.get(session[CURR_USER_KEY])
 
@@ -66,8 +68,8 @@ def handle_signup():
     and re-present form.
     """
 
-    if CURR_USER_KEY in session:
-        del session[CURR_USER_KEY]
+    do_logout()
+
     form = UserAddForm()
 
     if form.validate_on_submit():
@@ -194,6 +196,7 @@ def start_following(follow_id):
 
     Redirect to following page for the current for the current user.
     """
+    # Validate on submit the CSRF form. The logout button is not executing the CSRF form without submit. 
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -212,7 +215,7 @@ def stop_following(follow_id):
 
     Redirect to following page for the current for the current user.
     """
-
+# TODO: See above ^^^
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -229,6 +232,7 @@ def update_profile():
     """GET: Render template for user to edit their profile.
 
        POST: Handle form, check that password is correct, and commit changes to the database. """
+    # TODO: Change Curr_USER_KEY in session to  'if not g.user'
     if CURR_USER_KEY not in session:
         raise Unauthorized()
 
@@ -261,6 +265,8 @@ def delete_user():
 
     Redirect to signup page.
     """
+
+# TODO: Add CSRF validation
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -320,6 +326,8 @@ def delete_message(message_id):
     Redirect to user page on success.
     """
 
+    # TODO: You know the drilL!
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -342,6 +350,10 @@ def display_homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
+    # TODO: Edit docstring to what the function is now doing for us. 
+    # TODO: Swap order of order_by and filter
+        # TODO: Research a way to only find the id's of each of the instances in g.user.following
+
     users = g.user.following
     users.append(g.user)
     ids = [user.id for user in users]
