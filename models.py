@@ -4,6 +4,7 @@ from datetime import datetime
 
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import UniqueConstraint
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
@@ -85,7 +86,8 @@ class User(db.Model):
         backref="following",
     )
 
-   
+    liked_messages = db.relationship('LikedWarble', backref="user")
+
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
@@ -182,3 +184,37 @@ def connect_db(app):
     app.app_context().push()
     db.app = app
     db.init_app(app)
+
+
+class LikedWarble(db.Model):
+    """An individual message ("warble")."""
+
+    __tablename__ = 'liked_warbles'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id'),
+        # db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    message_id = db.Column(
+        db.Integer,
+        db.ForeignKey('messages.id'),
+        nullable=False,
+    )
+
+    __table_args__ = (UniqueConstraint('user_id',
+                                       'message_id',
+                                       name='unique'),)
+
+
+
+
+
+
