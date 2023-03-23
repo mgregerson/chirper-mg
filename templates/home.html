@@ -50,23 +50,26 @@
 
   <!-- Else message not in user.liked_warbles -->
   <!-- form action='add_liked_warble' -->
-
-  <div class="col-lg-6 col-md-8 col-sm-12">
-    <ul class="list-group" id="messages">
-      {% for msg in messages %}
-      <li class="list-group-item">
-        <a href="/messages/{{ msg.id }}" class="message-link" />
-        <a href="/users/{{ msg.user.id }}">
-          <img src="{{ msg.user.image_url }}" alt="" class="timeline-image" />
-        </a>
-        <div class="message-area">
-          <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
-          <span class="text-muted"
-            >{{ msg.timestamp.strftime('%d %B %Y') }}</span
-          >
-          <p>{{ msg.text }}</p>
-        </div>
-      </li>
+  {% for msg in messages %}
+  <div class="d-flex justify-content-center">
+    <div class="col-lg-6 col-md-8 col-sm-12">
+      <ul class="list-group" id="messages">
+        <li class="list-group-item">
+          <a href="/messages/{{ msg.id }}" class="message-link" />
+          <a href="/users/{{ msg.user.id }}">
+            <img src="{{ msg.user.image_url }}" alt="" class="timeline-image" />
+          </a>
+          <div class="message-area">
+            <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
+            <span class="text-muted"
+              >{{ msg.timestamp.strftime('%d %B %Y') }}</span
+            >
+            <p>{{ msg.text }}</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="col-lg-1 col-md-1 col-sm-1">
       {% if msg not in g.user.liked_messages %}
       <form action="/add_liked_warble/{{ msg.id }}">
         <button type="submit" class="btn">
@@ -79,8 +82,9 @@
           <i class="bi bi-star-fill"></i>
         </button>
       </form>
-      {% endif %} {% endfor %}
-    </ul>
+      {% endif %}
+    </div>
   </div>
+  {% endfor %}
 </div>
 {% endblock %}
