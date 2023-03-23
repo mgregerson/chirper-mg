@@ -28,7 +28,7 @@ connect_db(app)
 
 @app.before_request
 def add_user_and_form_to_g():
-    """If we're logged in, add curr user to Flask global. 
+    """If we're logged in, add curr user to Flask global.
     Adds CsrfForm to g whether user is logged in or not."""
 
     if CURR_USER_KEY in session:
@@ -194,7 +194,7 @@ def start_following(follow_id):
 
     Redirect to following page for the current for the current user.
     """
-    # Validate on submit the CSRF form. The logout button is not executing the CSRF form without submit. 
+    # Validate on submit the CSRF form. The logout button is not executing the CSRF form without submit.
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -353,7 +353,7 @@ def add_liked_warble(message_id):
     db.session.add(liked_warble)
     db.session.commit()
 
-    return render_template('/users/liked_warbles.html')
+    return redirect('/')
 
 @app.get('/remove_liked_warble/<int:message_id>')
 def remove_liked_warble(message_id):
@@ -361,19 +361,26 @@ def remove_liked_warble(message_id):
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    
+
     message = Message.query.get_or_404(message_id)
 
     print(message.liked_messages,
           'is this all of them?')
 
-    liked_warble = LikedWarble.query.filter(g.user.id).filter(message.id)
+    liked_warble = LikedWarble.query.filter(g.user.id == LikedWarble.user_id,
+                                             message.id == LikedWarble.message_id).first()
 
     db.session.delete(liked_warble)
 
     db.session.commit()
 
-    return render_template('home.html')
+    return redirect('/')
+
+@app.get('/users/<int:user_id>/liked_messages')
+def show_liked_warble(user_id):
+
+    return render_template('/users/liked_warbles.html')
+
 
 ##############################################################################
 # Homepage and error pages
@@ -386,7 +393,7 @@ def display_homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-    # TODO: Edit docstring to what the function is now doing for us. 
+    # TODO: Edit docstring to what the function is now doing for us.
         # TODO: Research a way to only find the id's of each of the instances in g.user.following
 
     if g.user:
