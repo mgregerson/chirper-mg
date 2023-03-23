@@ -232,8 +232,7 @@ def update_profile():
     """GET: Render template for user to edit their profile.
 
        POST: Handle form, check that password is correct, and commit changes to the database. """
-    # TODO: Change Curr_USER_KEY in session to  'if not g.user'
-    if CURR_USER_KEY not in session:
+    if not g.user:
         raise Unauthorized()
 
     form = EditUserProfile(obj=g.user)
@@ -326,7 +325,7 @@ def delete_message(message_id):
     Redirect to user page on success.
     """
 
-    # TODO: You know the drilL!
+    # TODO: You know the drill!
 
     if not g.user:
         flash("Access unauthorized.", "danger")
