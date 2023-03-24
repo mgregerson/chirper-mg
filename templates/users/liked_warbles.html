@@ -60,10 +60,10 @@
         {% if msg not in user.liked_messages %}
         <form
           style="z-index: 7"
-          action="/add_liked_warble/{{ msg.id }}"
+          action="/messages/{{msg.id}}/like"
           method="POST"
         >
-          <input type="hidden" value="/" name="origin" />
+          <input type="hidden" value="/users/{{user.id}}/liked_messages" name="origin" />
           <button type="submit" class="btn">
             <i class="bi bi-star"></i>
           </button>
@@ -71,10 +71,10 @@
         {% else %}
         <form
           style="z-index: 7"
-          action="/remove_liked_warble/{{ msg.id }}"
+          action="/messages/{{msg.id}}/unlike"
           method="POST"
         >
-          <input type="hidden" value="/" name="origin" />
+          <input type="hidden" value="/users/{{user.id}}/liked_messages" name="origin" />
           <button type="submit" class="btn">
             <i class="bi bi-star-fill"></i>
           </button>

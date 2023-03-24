@@ -364,7 +364,7 @@ def add_liked_warble(message_id):
     if g.csrf.validate_on_submit() and not g.user:
             flash("Access unauthorized.", "danger")
             return redirect("/")
-    
+
     message = Message.query.get_or_404(message_id)
 
     if message.user_id == g.user.id:
@@ -381,13 +381,13 @@ def add_liked_warble(message_id):
 @app.post('/messages/<int:message_id>/unlike')
 def remove_liked_warble(message_id):
     """Removes likedWarble instance and removes from the likedWarbles table. Redirects user to the page they were previously on"""
-
+    print("hi")
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    
+
     origin_page = request.form['origin']
-    print(origin_page)
+    print("ORIGIN PAGE", origin_page)
 
     message = Message.query.get_or_404(message_id)
 
