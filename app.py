@@ -368,7 +368,7 @@ def add_liked_warble(message_id):
     message = Message.query.get_or_404(message_id)
 
     if message.user_id == g.user.id:
-        flash("You can't like your own warble, silly!") #TODO:add liked messages- g.user.append(message)
+        flash("You can't like your own warble, silly!")
         return redirect('/')
 
     liked_warble = LikedWarble(user_id = g.user.id, message_id=message.id)
@@ -387,6 +387,7 @@ def remove_liked_warble(message_id):
         return redirect("/")
     
     origin_page = request.form['origin']
+    print(origin_page)
 
     message = Message.query.get_or_404(message_id)
 
@@ -400,13 +401,16 @@ def remove_liked_warble(message_id):
     return redirect(origin_page)
 
 @app.get('/users/<int:user_id>/liked_messages')
-def show_liked_warble(user_id):
-    """Displays users list of liked messages."""
-        #TODO: add logic to show all liked messages
+def show_liked_warbles(user_id):
+    """Displays user profile and a list of the users liked messages."""
+
+    if g.csrf.validate_on_submit():
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
     user = User.query.get(user_id)
 
-    return render_template('/users/liked_warbles.html')
+    return render_template('/users/liked_warbles.html', user=user)
 
 
 ##############################################################################
@@ -420,7 +424,6 @@ def display_homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-    # TODO: Research a way to only find the id's of each of the instances in g.user.following
 
     if g.user:
 
