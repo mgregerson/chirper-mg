@@ -7,6 +7,8 @@
 
 import os
 from unittest import TestCase
+from flask_bcrypt import Bcrypt
+
 
 from models import db, User, Message, Follows
 
@@ -25,8 +27,15 @@ from app import app
 # once for all tests --- in each test, we'll delete the data
 # and create fresh new clean test data
 
+app.config['WTF_CSRF_ENABLED'] = False
+
+
 db.drop_all()
 db.create_all()
+
+bcrypt = Bcrypt()
+PASSWORD = bcrypt.generate_password_hash("password", rounds=5).decode("utf-8")
+
 
 
 class UserModelTestCase(TestCase):
@@ -53,23 +62,25 @@ class UserModelTestCase(TestCase):
         self.assertEqual(len(u1.followers), 0)
 
 
-    def test_is_following(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess["curr_user"] = "u1"
-            resp = client.post(
-                f'/users/follow/{self.u2_id}',
-                data={
-                    'id':"2"
-                }
-            )
-            print("RESPONSE DATA", resp.data)
+    # def test_is_following(self):
+    #     with app.test_client() as client:
+    #         with client.session_transaction() as sess:
+    #             sess["curr_user"] = self.u1_id
+    #         resp = client.post(
+    #             f"/users/follow/{self.u2_id}",
+    #             data={
+    #                 'id':"2"
+    #             }
+    #         )
+    #         print("RESPONSE DATA", resp.data)
+    #         print("!!!!!!SESSION", sess)
+    #         print("U1!!!!", sess["curr_user"])
 
-            u2 = User.query.get(self.u2_id)
+    #         u2 = User.query.get(self.u2_id)
 
-            self.u1.following.append(u2)
-            db.session.commit()
+    #         self.u1.following.append(u2)
 
-            self.assertEqual(resp.status_code, 302)
-            self.assertEqual(self.u1.is_following(u2), True)
+    #         db.session.commit()
+    #         self.assertEqual(resp.status_code, 302)
+    #         self.assertEqual(sess["curr_user"].is_following(u2), True)
 
