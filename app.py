@@ -434,8 +434,11 @@ def display_homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
+        
+        recent_messages = (Message.query.order_by(Message.timestamp.desc()).limit(10).all())
+        print(recent_messages[0].user.id)
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, recent_messages=recent_messages)
 
     else:
         return render_template('home-anon.html')
