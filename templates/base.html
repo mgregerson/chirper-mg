@@ -48,7 +48,7 @@
           {% endblock %} {% if not g.user %}
           <li><a href="/signup">Sign up</a></li>
           <form action="/login" method="POST" id="logout">
-            {{ g.form.hidden_tag() }}
+            {{ g.csrf.hidden_tag() }}
             <button type="submit" class="btn btn-danger btn-sm">Login</button>
           </form>
           {% else %}
@@ -59,7 +59,7 @@
           </li>
           <li><a href="/messages/new">New Message</a></li>
           <form action="/logout" method="POST" id="logout">
-            {{ g.form.hidden_tag() }}
+            {{ g.csrf.hidden_tag() }}
             <button type="submit" class="btn btn-danger btn-sm">Logout</button>
           </form>
           {% endif %}
@@ -72,5 +72,8 @@
       <div class="alert alert-{{ category }}">{{ message }}</div>
       {% endfor %} {% block content %} {% endblock %}
     </div>
+    <form>
+      {{ g.csrf.hidden_tag() }}
+    </form>
   </body>
 </html>

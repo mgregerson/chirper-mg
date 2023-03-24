@@ -30,14 +30,12 @@ connect_db(app)
 def add_user_and_form_to_g():
     """If we're logged in, add curr user to Flask global.
     Adds CsrfForm to g whether user is logged in or not."""
+    g.csrf = CsrfForm()
 
     if CURR_USER_KEY in session:
-        # TODO: Change name of g.form to something more specific to what this is calling. Change positiong of g.form(being used in both if and else)
-        g.form = CsrfForm()
         g.user = User.query.get(session[CURR_USER_KEY])
 
     else:
-        g.form = CsrfForm()
         g.user = None
 
 
@@ -117,7 +115,7 @@ def handle_login():
 def handle_logout():
     """Handle logout of user and redirect to homepage."""
 
-    if g.form.validate_on_submit():
+    if g.csrf.validate_on_submit():
         flash('We are sorry to see you go!')
         do_logout()
         return redirect("/login")
@@ -195,16 +193,20 @@ def start_following(follow_id):
     Redirect to following page for the current for the current user.
     """
     # Validate on submit the CSRF form. The logout button is not executing the CSRF form without submit.
+    if g.csrf.validate_on_submit():
 
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
+        if not g.user:
+            flash("Access unauthorized.", "danger")
+            return redirect("/")
 
-    followed_user = User.query.get_or_404(follow_id)
-    g.user.following.append(followed_user)
-    db.session.commit()
+        followed_user = User.query.get_or_404(follow_id)
+        g.user.following.append(followed_user)
+        db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+        return redirect(f"/users/{g.user.id}/following")
+
+    else:
+        raise Unauthorized()
 
 
 @app.post('/users/stop-following/<int:follow_id>')
@@ -213,16 +215,21 @@ def stop_following(follow_id):
 
     Redirect to following page for the current for the current user.
     """
-# TODO: See above ^^^
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
+    if g.csrf.validate_on_submit():
 
-    followed_user = User.query.get(follow_id)
-    g.user.following.remove(followed_user)
-    db.session.commit()
+        if not g.user:
+            flash("Access unauthorized.", "danger")
+            return redirect("/")
 
-    return redirect(f"/users/{g.user.id}/following")
+        followed_user = User.query.get(follow_id)
+        g.user.following.remove(followed_user)
+        db.session.commit()
+
+        return redirect(f"/users/{g.user.id}/following")
+
+    else:
+        raise Unauthorized()
+
 
 
 @app.route('/users/profile', methods=["GET", "POST"])
@@ -263,18 +270,23 @@ def delete_user():
     Redirect to signup page.
     """
 
-# TODO: Add CSRF validation
-
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
     do_logout()
 
+    deleted_messages = Message.query.filter(Message.user_id == g.user.id).all()
+    print("DELETED MESSAGES", deleted_messages)
+
+    for message in deleted_messages:
+        db.session.delete(message)
+
     db.session.delete(g.user)
     db.session.commit()
 
     return redirect("/signup")
+
 
 
 ##############################################################################
@@ -323,24 +335,28 @@ def delete_message(message_id):
     Redirect to user page on success.
     """
 
-    # TODO: You know the drill!
+    if g.csrf.validate_on_submit():
 
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
+        if not g.user:
+            flash("Access unauthorized.", "danger")
+            return redirect("/")
 
-    msg = Message.query.get_or_404(message_id)
-    db.session.delete(msg)
-    db.session.commit()
+        msg = Message.query.get_or_404(message_id)
+        db.session.delete(msg)
+        db.session.commit()
 
-    return redirect(f"/users/{g.user.id}")
+        return redirect(f"/users/{g.user.id}")
+
+    else:
+        raise Unauthorized()
 
 
 ##############################################################################
 # Liked Warbles Routes
 
-@app.get('/add_liked_warble/<int:message_id>')
+@app.get('/add_liked_warble/<int:message_id>')#TODO: change endpoint to be /messages/<message_id>/likes
 def add_liked_warble(message_id):
+    #TODO: make a docstring
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -349,7 +365,7 @@ def add_liked_warble(message_id):
     message = Message.query.get_or_404(message_id)
 
     if message.user_id == g.user.id:
-        flash("You can't like your own warble, silly!")
+        flash("You can't like your own warble, silly!") #TODO:add liked messages- g.user.append(message)
         return redirect('/')
 
     liked_warble = LikedWarble(user_id = g.user.id, message_id=message.id)
@@ -359,8 +375,9 @@ def add_liked_warble(message_id):
 
     return redirect('/')
 
-@app.get('/remove_liked_warble/<int:message_id>')
+@app.get('/remove_liked_warble/<int:message_id>')#TODO: change endpoint to be /messages/<message_id>/unlike
 def remove_liked_warble(message_id):
+    #TODO: make a docstring
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -382,6 +399,9 @@ def remove_liked_warble(message_id):
 
 @app.get('/users/<int:user_id>/liked_messages')
 def show_liked_warble(user_id):
+        #TODO: make a docstring
+        #TODO: add logic to show all liked messages
+
 
     return render_template('/users/liked_warbles.html')
 
@@ -397,8 +417,7 @@ def display_homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-    # TODO: Edit docstring to what the function is now doing for us.
-        # TODO: Research a way to only find the id's of each of the instances in g.user.following
+    # TODO: Research a way to only find the id's of each of the instances in g.user.following
 
     if g.user:
 

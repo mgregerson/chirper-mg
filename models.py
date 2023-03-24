@@ -75,7 +75,7 @@ class User(db.Model):
         db.Text,
         nullable=False,
     )
-# CAN ADD cascade='all' if we want to be able to delete all of the warbles connected to this user. But, let's not try that now.
+
     messages = db.relationship('Message', backref="user")
 
     followers = db.relationship(
@@ -86,9 +86,10 @@ class User(db.Model):
         backref="following",
     )
 
-    liked_messages = db.relationship('Message', secondary='liked_warbles', backref="users")
+    liked_messages = db.relationship('LikedWarble', backref="user")
 
-# go from user to messages to liked_messages
+    #liked_messages = db.relationship('Message', secondary = "liked_warbles", backref="users_liked_messages")
+
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
@@ -175,8 +176,6 @@ class Message(db.Model):
         nullable=False,
     )
 
-    liked_messages = db.relationship('LikedWarble', backref="message")
-
 
 def connect_db(app):
     """Connect this database to provided Flask app.
@@ -190,7 +189,7 @@ def connect_db(app):
 
 
 class LikedWarble(db.Model):
-    """An individual liked message ("warble"). UniqueConstraint of a user_id/message_id"""
+    """An individual message ("warble").""" #TODO: change docstring
 
     __tablename__ = 'liked_warbles'
 
@@ -204,12 +203,14 @@ class LikedWarble(db.Model):
         db.ForeignKey('users.id'),
         # db.ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
+        # primary_key=True,
     )
 
     message_id = db.Column(
         db.Integer,
         db.ForeignKey('messages.id'),
         nullable=False,
+        # primary_key=True,
     )
 
     __table_args__ = (UniqueConstraint('user_id',

@@ -297,6 +297,16 @@ nav + .container {
   background-color: #e6ecf0;
 }
 
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-area {
+  flex-grow: 1;
+}
+
 #sidebar-username {
   margin-top: 30px;
   font-size: 21px;
@@ -576,3 +586,4 @@ p.card-bio {
 .bi-star-fill {
   z-index: 1;
 }
+
