@@ -86,9 +86,7 @@ class User(db.Model):
         backref="following",
     )
 
-    liked_messages = db.relationship('LikedWarble', backref="user")
-
-    #liked_messages = db.relationship('Message', secondary = "liked_warbles", backref="users_liked_messages")
+    liked_messages = db.relationship('Message', secondary = "liked_warbles", backref="users_liked_messages")
 
 
     def __repr__(self):

@@ -354,14 +354,17 @@ def delete_message(message_id):
 ##############################################################################
 # Liked Warbles Routes
 
-@app.get('/add_liked_warble/<int:message_id>')#TODO: change endpoint to be /messages/<message_id>/likes
+@app.post('/messages/<int:message_id>/like')
 def add_liked_warble(message_id):
-    #TODO: make a docstring
+    """Adds liked warble to the LikedWarble table. Redirects user back to the page that they were currently visiting."""
 
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
+    origin_page = request.form['origin']
+    print(origin_page, 'THE ORIGIN')
 
+    if g.csrf.validate_on_submit() and not g.user:
+            flash("Access unauthorized.", "danger")
+            return redirect("/")
+    
     message = Message.query.get_or_404(message_id)
 
     if message.user_id == g.user.id:
@@ -373,20 +376,19 @@ def add_liked_warble(message_id):
     db.session.add(liked_warble)
     db.session.commit()
 
-    return redirect('/')
+    return redirect(origin_page)
 
-@app.get('/remove_liked_warble/<int:message_id>')#TODO: change endpoint to be /messages/<message_id>/unlike
+@app.post('/messages/<int:message_id>/unlike')
 def remove_liked_warble(message_id):
-    #TODO: make a docstring
+    """Removes likedWarble instance and removes from the likedWarbles table. Redirects user to the page they were previously on"""
 
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
+    
+    origin_page = request.form['origin']
 
     message = Message.query.get_or_404(message_id)
-
-    print(message.liked_messages,
-          'is this all of them?')
 
     liked_warble = LikedWarble.query.filter(g.user.id == LikedWarble.user_id,
                                              message.id == LikedWarble.message_id).first()
@@ -395,13 +397,14 @@ def remove_liked_warble(message_id):
 
     db.session.commit()
 
-    return redirect('/')
+    return redirect(origin_page)
 
 @app.get('/users/<int:user_id>/liked_messages')
 def show_liked_warble(user_id):
-        #TODO: make a docstring
+    """Displays users list of liked messages."""
         #TODO: add logic to show all liked messages
 
+    user = User.query.get(user_id)
 
     return render_template('/users/liked_warbles.html')
 
