@@ -1,4 +1,4 @@
-"""Generate CSVs of random data for Warbler.
+"""Generate CSVs of random data for Chirper.
 
 Students won't need to run this for the exercise; they will just use the CSV
 files that this generates. You should only need to run this if you wanted to

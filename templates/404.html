@@ -68,10 +68,10 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container error-page">
       {% for category, message in get_flashed_messages(with_categories=True) %}
       <div class="alert alert-{{ category }}">{{ message }}</div>
-      {% endfor %} {% block content %} {% endblock %}
+      {% endfor %}
     </div>
     <form>{{ g.csrf.hidden_tag() }}</form>
   </body>

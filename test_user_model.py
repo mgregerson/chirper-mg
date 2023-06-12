@@ -62,25 +62,92 @@ class UserModelTestCase(TestCase):
         self.assertEqual(len(u1.followers), 0)
 
 
-    # def test_is_following(self):
-    #     with app.test_client() as client:
-    #         with client.session_transaction() as sess:
-    #             sess["curr_user"] = self.u1_id
-    #         resp = client.post(
-    #             f"/users/follow/{self.u2_id}",
-    #             data={
-    #                 'id':"2"
-    #             }
-    #         )
-    #         print("RESPONSE DATA", resp.data)
-    #         print("!!!!!!SESSION", sess)
-    #         print("U1!!!!", sess["curr_user"])
+    def test_is_following(self):
+        """Tests where a user can follow another user."""
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess["curr_user"] = self.u1_id
+            resp = client.post(
+                f"/users/follow/{self.u2_id}",
+                data={
+                    'id':"2"
+                }
+            )
 
-    #         u2 = User.query.get(self.u2_id)
+            u2 = User.query.get(self.u2_id)
+            u1 = User.query.get(self.u1_id)
 
-    #         self.u1.following.append(u2)
+            u1.following.append(u2)
 
-    #         db.session.commit()
-    #         self.assertEqual(resp.status_code, 302)
-    #         self.assertEqual(sess["curr_user"].is_following(u2), True)
+            db.session.commit()
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(u1.is_following(u2), True)
+            self.assertEqual(u2.is_followed_by(u1), True)
+
+    def test_is_not_following(self):
+        """Tests whether a user can follow and then 
+        successfully unfollow another user."""
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess["curr_user"] = self.u1_id
+            resp = client.post(
+                f"/users/follow/{self.u2_id}",
+                data={
+                    'id':"2"
+                }
+            )
+            u2 = User.query.get(self.u2_id)
+            u1 = User.query.get(self.u1_id)
+            db.session.commit()
+            response = client.post(
+                f"/users/stop-following/{self.u2_id}",
+                data={
+                    'id':"2"
+                }
+            )
+            
+            db.session.commit()
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(u1.is_following(u2), False)
+            self.assertEqual(u2.is_followed_by(u1), False)
+
+
+    def test_user_signup(self):
+        """Tests whether User.signup creates a new user given valid credentials.
+        Tests whether User.signup does not create a new user if given invalid credentials."""
+
+
+        u3 = User.signup("u3", "u3@email.com", "password", None)
+
+        db.session.commit()
+
+        self.assertIsInstance(u3, User)
+
+        with self.assertRaises(ValueError):
+            u4 = User.signup('u4', 'u4@email.com', None)
+            db.session.commit()
+
+
+    def test_user_authenticate(self):
+        """Tests whether User.authenticate successfully returns a user when given a valid username and password."""
+    
+        test_user_1 = User.authenticate('u1', 'password')
+        test_fake_username = User.authenticate('adsjfhalisdfas', 'password')
+        test_fake_password = User.authenticate('u1', 'alsdhfaisduf')
+
+        self.assertIsInstance(test_user_1, User)
+        self.assertNotIsInstance(test_fake_username, User)
+        self.assertEqual(test_fake_username, False)
+        self.assertNotIsInstance(test_fake_password, User)
+        self.assertEqual(test_fake_password, False)
+
+
+    
+
+
+
+    
+
+
 

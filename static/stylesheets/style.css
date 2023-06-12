@@ -594,3 +594,16 @@ p.card-bio {
 .bi-star-fill {
   z-index: 1;
 }
+
+.error-page {
+  background-image: url("/static/images/owl-404.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.error-page img {
+  width: 100%; /* Make the image fill the container's width */
+  height: 100%; /* Make the image fill the container's height */
+  object-fit: cover; /* Optional: maintain the aspect ratio of the image and crop if necessary */
+}
