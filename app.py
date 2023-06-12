@@ -79,6 +79,7 @@ def handle_signup():
             db.session.commit()
 
         except IntegrityError:
+            db.session.rollback()
             flash("Username already taken", 'danger')
             return render_template('users/signup.html', form=form)
 
@@ -442,6 +443,11 @@ def display_homepage():
 
     else:
         return render_template('home-anon.html')
+    
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
 
 
 ##############################################################################
