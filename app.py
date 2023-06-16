@@ -64,7 +64,7 @@ def handle_signup():
     and re-present form.
     """
 
-    do_logout()
+    # do_logout()
 
     form = UserAddForm()
 
