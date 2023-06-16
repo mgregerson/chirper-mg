@@ -20,9 +20,9 @@ gunicorn==20.1.0
 heroku==0.1.4
 idna==3.4
 ipython==8.11.0
-itsdangerous==2.1.2
+itsdangerous
 jedi==0.18.2
-Jinja2==3.1.2
+Jinja2
 MarkupSafe==2.1.2
 matplotlib-inline==0.1.6
 parso==0.8.3
@@ -44,5 +44,5 @@ traitlets==5.9.0
 typing_extensions==4.5.0
 urllib3==2.0.3
 wcwidth==0.2.6
-Werkzeug==2.2.3
+Werkzeug
 WTForms==3.0.1
