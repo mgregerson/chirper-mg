@@ -69,6 +69,7 @@ def handle_signup():
     form = UserAddForm()
 
     if form.validate_on_submit():
+        print("GOT INSIDE FORM VALIDATION FOR SIGNUP POST ROUTE")
         try:
             user = User.signup(
                 username=form.username.data,
@@ -79,15 +80,17 @@ def handle_signup():
             db.session.commit()
 
         except IntegrityError:
+            print("GOT INTEGRITY ERROR WHEN CREATING NEW USER")
             db.session.rollback()
             flash("Username already taken", 'danger')
             return render_template('users/signup.html', form=form)
 
         do_login(user)
-
+        print("SUCCESSFUL POST SIGNUP, USER CREATED AND ABOUT TO REDIRECT")
         return redirect("/")
 
     else:
+        print("FORM DIDN'T VALIDATE, EITHER A GET REQUEST OR INVALID FORM SUBMISSION")
         return render_template('users/signup.html', form=form)
 
 
@@ -435,7 +438,7 @@ def display_homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
-        
+
         recent_messages = (Message.query.order_by(Message.timestamp.desc()).limit(10).all())
         print(recent_messages[0].user.id)
 
@@ -443,7 +446,7 @@ def display_homepage():
 
     else:
         return render_template('home-anon.html')
-    
+
 
 @app.errorhandler(404)
 def not_found_error(error):
