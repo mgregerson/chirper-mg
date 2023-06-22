@@ -34,9 +34,16 @@ def add_user_and_form_to_g():
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
+        print(session[CURR_USER_KEY], 'the session')
+        print(g.user, 'the user')
 
     else:
-        g.user = None
+        # G.USER in TEST = NONE
+        # g.user = None
+        # G.USER in DEV = 304
+        # g.user = User.query.get(304)
+        # G.USER in PROD = 310
+        g.user = User.query.get(310)
 
 
 def do_login(user):
