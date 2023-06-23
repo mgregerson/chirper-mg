@@ -38,7 +38,7 @@ def add_user_and_form_to_g():
         print(g.user, 'the user')
 
     else:
-        # G.USER in TEST = NONE
+        # G.USER in TESTING = NONE
         # g.user = None
         # G.USER in DEV = 304
         # g.user = User.query.get(304)
